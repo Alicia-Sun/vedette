@@ -13,6 +13,8 @@ On Unix: source .lvenv/bin/activate
 
 On Windows: .lvenv/Scripts/activate
 
+AFter activation, use package installers to add the modules to the venv
+
 
 Run the trame_app with:
 
