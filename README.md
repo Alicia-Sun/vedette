@@ -1,4 +1,4 @@
-****Setup****
+***Setup***
 
 Install LidarView and pull the path for lvpython within the application folder.
 
