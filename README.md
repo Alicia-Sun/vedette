@@ -18,6 +18,6 @@ After activation, use package installers to add the modules to the venv
 
 Run the trame_app with:
 
-  lvpython <trame-python-script> --venv .lvenv
+  lvpython [trame application name] --venv .lvenv
   
 Run other applications similarly
