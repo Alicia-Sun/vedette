@@ -1,23 +1,28 @@
-***Setup***
+# Setup Instructions
 
-Install LidarView and pull the path for lvpython within the application folder.
+### 1. Install LidarView
+- Download and install LidarView from the following link:  
+  [LidarView Releases](https://gitlab.kitware.com/LidarView/lidarview/-/releases)
 
-Installation link: https://gitlab.kitware.com/LidarView/lidarview/-/releases
+- After installation, locate the `lvpython` executable within the LidarView application folder.
 
-Add that path as an environment path variable for your computer so you can run lvpython.
+### 2. Add `lvpython` to Environment Path
+- Add the path to `lvpython` as an environment variable on your system.  
+  This allows you to execute `lvpython` from any command line or terminal.
 
+### 3. Virtual Environment Setup
+Whenever installing packages, first activate the virtual environment:
 
-Whenever installing packages, activate the venv:
-
-On Unix: source .lvenv/bin/activate
-
-On Windows: .lvenv/Scripts/activate
+- **On Unix-based systems (Linux/macOS):**
+  source .lvenv/bin/activate
+  **On Windows:**
+  .lvenv/bin/activate
 
 After activation, use package installers to add the modules to the venv
 
-
+### 4. Running applications
 Run the trame_app with:
 
-  lvpython [trame application name] --venv .lvenv
+lvpython [trame application name] --venv .lvenv
   
 Run other applications similarly
