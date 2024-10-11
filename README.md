@@ -26,3 +26,7 @@ Run the trame_app with:
 lvpython [trame application name] --venv .lvenv
   
 Run other applications similarly
+
+# Errors you might face
+-Module not found error: make sure you package installed with the virtual environment activated
+-lvpython not recognized: you did not add path to environment variables correctly
