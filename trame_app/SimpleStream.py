@@ -22,12 +22,13 @@ state, ctrl = server.state, server.controller
 intensityLUT = simple.GetColorTransferFunction('intensity')
 intensityLUT.RGBPoints = [0.0, 0.0, 0.0, 1.0, 40.0, 1.0, 1.0, 0.0, 100.0, 1.0, 0.0, 0.0]
 intensityLUT.ColorSpace = 'HSV'
+# inputfile = 'C:/Users/alici/OneDrive/Documents/VEDETTE/vedette/trame_app/test_data.pcap'
 
-print("cp1")
 stream = lvsmp.OpenSensorStream("VLP-16", "Velodyne")
-print("cp2", stream)
 stream.Start()
-print("cp3")
+
+# stream = lvsmp.OpenPCAP(inputfile, "VLP-16", "Velodyne")
+
 representation = simple.Show(stream)
 simple.ColorBy(representation, ('POINTS', 'intensity'))
 
@@ -36,7 +37,6 @@ view.UseColorPaletteForBackground = 0
 view.Background = [0.0, 0.0, 0.2]
 view.OrientationAxesVisibility = 0
 view = simple.Render()
-
 state.slam = None
 
 # -----------------------------------------------------------------------------
