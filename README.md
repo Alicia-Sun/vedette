@@ -14,9 +14,9 @@
 Whenever installing packages, first activate the virtual environment:
 
 - **On Unix-based systems (Linux/macOS):**
-  source .lvenv/bin/activate
+  source .lvenv/Scripts/activate
   **On Windows:**
-  .lvenv/bin/activate
+  .lvenv/Scripts/activate
 
 After activation, use package installers to add the modules to the venv
 
