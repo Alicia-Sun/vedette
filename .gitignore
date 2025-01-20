@@ -11,6 +11,8 @@ env/
 ENV/
 env.bak/
 venv.bak/
+.lvenv/
+.new_lvenv/
 
 # Installer logs
 pip-log.txt
