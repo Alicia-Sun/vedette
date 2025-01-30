@@ -1,0 +1,303 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap');
+/* lidar.css */
+.lidar-container {
+  background-color: #20191a; /* Dark brown background */
+  color: white; /* White text color */
+  padding: 10px;
+  width: 100%; /* Full width of the page */
+  height: 100vh; /* Full viewport height */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box; /* This ensures padding and border are included in the total height and width */
+}
+
+.iframe-container {
+  display: flex;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.main-iframe {
+  width: 60%;
+  height: 75vh;
+  border: 2px solid white;
+  border-radius: 10px;
+}
+
+.side-iframes {
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+  width: 40%;
+  height: 75vh; /* Match the height of side iframes with the main iframe */
+  box-sizing: border-box; /* Prevent padding and margin from affecting total height */
+}
+
+.side-iframe1,
+.side-iframe2 {
+  width: 100%;
+  height: 50%; /* Each iframe takes up 50% of the height of the side-iframes container */
+  border: 2px solid white;
+  border-radius: 10px;
+}
+
+.side-iframe1 {
+  margin-bottom: 5px; /* Space between the two side iframes */
+}
+
+.side-iframe2 {
+  margin-top: 5px; /* Space between the two side iframes */
+}
+
+.bottom-sections {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.section-1 {
+  width: 40%; /* Make each section take up a third of the bottom area */
+  display: flex;
+  flex-direction: column;
+  margin-right: 20px;
+}
+
+.section-2 {
+  display: flex;
+  flex-grow: 1;
+  position: relative; 
+  flex-direction: column;
+  margin-right: 20px;
+}
+
+.section-3 {
+  width: 40%; /* Make each section take up a third of the bottom area */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+/* lidar.css */
+.button-group1 {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  gap: 0px;
+  height: 50%;
+  padding-bottom: 10px;
+}
+
+.button-group2 {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  gap: 0px;
+  flex: 1;
+}
+
+.action-button {
+  flex: 1; /* This ensures that each button takes up equal width */
+  background-color: #5c4347 ;
+  color: white;
+  padding: 10px ;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.action-button.connected {
+  border-radius: 10px 0 0 10px; /* First button has rounded left corner */
+  border: 2px solid white;
+}
+
+.action-button.connected + .connected {
+  border-radius: 0 10px 10px 0; /* Second button has rounded right corner */
+}
+
+
+
+/* lidar.css */
+.section-2 {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.color-button-group {
+  display: flex;
+  width: 100%;
+  padding-bottom: 10px;
+  height: 100%;
+}
+
+.color-button {
+  flex: 1; /* Ensures all buttons take equal width */
+  background-color: transparent;
+  color: white;
+  padding: 10px;
+  border: 2px solid white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.color-button:first-child {
+  border-radius: 10px 0 0 10px; /* First button has rounded left corners */
+}
+
+.color-button:last-child {
+  border-radius: 0 10px 10px 0; /* Last button has rounded right corners */
+}
+
+.color-button:not(:first-child):not(:last-child) {
+  border-radius: 0; /* Buttons in the middle have no rounded corners */
+}
+
+/* Custom styling for the slider */
+.slider {
+  width: 100%;
+  height: 50px; /* Make the background of the slider thicker */
+  margin-top: 10px;
+  -webkit-appearance: none; /* Remove default appearance */
+  appearance: none; /* Remove default appearance */
+  background-color: #5c4347; /* Dark pink background */
+  border-radius: 20px; /* Rounded corners */
+  position: relative; /* To position the current value indicator */
+}
+
+/* Style the slider when hovered */
+.slider:hover {
+  cursor: pointer;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+}
+
+.point-settings-container {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  flex: 1;
+}
+
+.point-size-container {
+  display: flex;
+  flex-direction: column;
+  width: 50%; 
+}
+
+.checkbox-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width:60%; 
+}
+
+.checkbox-ambient-occlusion {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-left: 10%;
+  padding-right: 5%;
+}
+
+.checkbox-ambient-occlusion label {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.checkbox-orthogonal-viewport {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-left: 5%;
+  padding-right: 10%;
+}
+
+.checkbox-orthogonal-viewport label {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Align checkbox input and labels to the center */
+.checkbox-ambient-occlusion,
+.checkbox-orthogonal-viewport {
+  display: flex;
+  align-items: center; /* Center the checkbox and label vertically */
+}
+
+/* Styling the checkbox */
+.checkbox-ambient-occlusion input[type="checkbox"],
+.checkbox-orthogonal-viewport input[type="checkbox"] {
+  width: 20px; /* Make the checkbox larger */
+  height: 20px; /* Make the checkbox larger */
+  margin-right: 10px; /* Space between checkbox and text */
+  vertical-align: middle; /* Align checkbox with label text */
+  appearance: none; /* Remove the default checkbox appearance */
+  border: 2px solid white; /* White border for custom checkbox */
+  background-color: darkgray; /* Dark background by default */
+  border-radius: 2px; /* Optional: Round the corners */
+  position: relative; /* Position relative for ::before */
+}
+
+/* Adding a checkmark when the checkbox is checked */
+.checkbox-ambient-occlusion input[type="checkbox"]:checked,
+.checkbox-orthogonal-viewport input[type="checkbox"]:checked {
+  background-color: #f1b4be; /* Pink background when checked */
+}
+
+.checkbox-ambient-occlusion label,
+.checkbox-orthogonal-viewport label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  text-align: left; /* Align label text to the left */
+  color: white;
+  padding-bottom: 15%;
+}
+
+label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; /* Set font size to 10px */
+  text-align: left; /* Align label text to the left */
+  color: white; /* White text */
+}
+
+.section-3 img {
+  width: 100%;
+  height: auto;
+  
+  border-radius: 10px;
+}
+
+.section-3 {
+  position: relative;
+  width: 40%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100%; /* Full height of the parent container */
+  border: 2px solid white;
+  border-radius: 15px;
+}
+
+.logo {
+  height: 100%; /* Make the image take up the full height of its container */
+  width: auto; /* Maintain the aspect ratio */
+  object-fit: contain; /* Ensures the image is fully visible without distortion */
+  max-width: 100%;
+}

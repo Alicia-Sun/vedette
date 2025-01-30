@@ -1,0 +1,49 @@
+/* Custom styling for the slider */
+.slider {
+    width: 100%;
+    height: 10px; /* Make the background of the slider thicker */
+    margin-top: 10px;
+    -webkit-appearance: none; /* Remove default appearance */
+    appearance: none; /* Remove default appearance */
+    background-color: #d81b60; /* Dark pink background */
+    border-radius: 5px; /* Rounded corners */
+    position: relative; /* To position the current value indicator */
+  }
+  
+  /* Style the slider when hovered */
+  .slider:hover {
+    cursor: pointer;
+  }
+  
+  /* Add a pink vertical bar to indicate the current value */
+  .slider::-webkit-slider-runnable-track {
+    height: 10px; /* Track thickness */
+    background-color: #d81b60; /* Dark pink track */
+    border-radius: 5px;
+  }
+  
+  /* Slider thumb (the draggable part) */
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Remove default thumb */
+    appearance: none;
+    width: 20px; /* Thumb size */
+    height: 20px; /* Thumb size */
+    background-color: #f1b4be; /* Pink thumb color */
+    border-radius: 50%; /* Make thumb circular */
+    cursor: pointer; /* Pointer cursor on hover */
+  }
+  
+  /* Customize tick marks (use custom CSS with pseudo-elements) */
+  .slider::-webkit-slider-tick-mark {
+    background-color: pink; /* Pink color for tick marks */
+    width: 4px; /* Size of the tick marks */
+    height: 4px; /* Size of the tick marks */
+    border-radius: 50%; /* Make tick marks round */
+    margin-top: -5px; /* Adjust the vertical position of the tick marks */
+  }
+  
+  /* Customize the ticks that are shown on the slider */
+  .slider::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #d81b60 0%, #d81b60 calc(20%)) no-repeat;
+  }
+  
