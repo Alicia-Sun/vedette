@@ -1,7 +1,7 @@
 import React from 'react';
 import './lidar.css';
 import logo from '../images/vedette_logo.png';
-
+import ColorButton from '../components/color_button.js'
 
 
 const Lidar = () => (
@@ -10,20 +10,20 @@ const Lidar = () => (
       <iframe 
         title="Main Iframe"
         className="main-iframe"
-        src="https://www.example.com"
+        src="https://i.ibb.co/4Rf0t2VQ/freecam-pov.png"
         frameBorder="0"
       ></iframe>
       <div className="side-iframes">
         <iframe 
           title="Side Iframe 1"
           className="side-iframe1"
-          src="https://www.example.com"
+          src="https://i.ibb.co/sppB93V5/lidar-pov.png"
           frameBorder="0"
         ></iframe>
         <iframe 
           title="Side Iframe 2"
           className="side-iframe2"
-          src="https://www.example.com"
+          src="https://i.ibb.co/XkXR6bb7/drone-pov.png"
           frameBorder="0"
         ></iframe>
       </div>
@@ -46,11 +46,12 @@ const Lidar = () => (
       <div className="section-2">
         <label class="bottom-label"> &nbsp;Color Template:</label>
         <div className="color-button-group">
-          <button className="color-button first">[1] Cyan & Pink</button>
+          {/* <button className="color-button first">[1] Cyan & Pink</button>
           <button className="color-button">[2] Red</button>
           <button className="color-button">[3] Blue</button>
           <button className="color-button">[4] Yellow</button>
-          <button className="color-button last">[5] Intensity</button>
+          <button className="color-button last">[5] Intensity</button> */}
+          <ColorButton/>
         </div>
 
         <div className="point-settings-container">

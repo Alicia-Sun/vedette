@@ -125,7 +125,12 @@
   border-radius: 0 10px 10px 0; /* Second button has rounded right corner */
 }
 
-
+.action-button.connected:nth-child(2) {
+  background-color: transparent; /* Transparent background */
+  color: white; /* Keep the text color white */
+  border: 2px solid white; /* Keep the white border */
+  cursor: pointer; /* Make it clickable */
+}
 
 /* lidar.css */
 .section-2 {
