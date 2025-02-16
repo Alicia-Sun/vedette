@@ -1,0 +1,14 @@
+Metadata-Version: 2.2
+Name: piplog
+Version: 0.0.2
+Summary: Logs your pip install history
+Author-email: Alicia Sun <asun0102@gmail.com>, Kenneth Xiao <kdxiao@uwaterloo.ca>
+License: MIT
+Project-URL: Homepage, https://github.com/Alicia-Sun/piphistory
+Project-URL: Issues, https://github.com/Alicia-Sun/piphistory/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+
+# Temporary README

@@ -1,0 +1,7 @@
+README.md
+setup.py
+trame_app.egg-info/PKG-INFO
+trame_app.egg-info/SOURCES.txt
+trame_app.egg-info/dependency_links.txt
+trame_app.egg-info/requires.txt
+trame_app.egg-info/top_level.txt

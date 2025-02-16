@@ -1,13 +1,13 @@
 import paraview.web.venv
 import asyncio
-import numpy as np
+# import numpy as np
 import time
 import plotly.graph_objects as go  # Import Plotly Graph Objects
 
 from trame.app import get_server, asynchronous
 from trame.widgets import vuetify, paraview  # Import Vuetify and ParaView widgets
 from trame_leaflet.widgets.leaflet import LMap, LTileLayer, LMarker  # Import Leaflet widgets
-from trame_plotly.widgets.plotly import Figure  # Import Plotly Figure widget
+# from trame_plotly.widgets.plotly import Figure  # Import Plotly Figure widget
 from trame.ui.vuetify import SinglePageLayout, VAppLayout
 
 
@@ -16,10 +16,10 @@ from lidarview import simple as lvsmp
 from vtkmodules.vtkFiltersSources import vtkCubeSource
 from paraview.vtk.util.numpy_support import vtk_to_numpy
 from paraview.simple import servermanager
-from sklearn.cluster import DBSCAN
-from sklearn.preprocessing import StandardScaler
-import open3d as o3d
-import hdbscan
+# from sklearn.cluster import DBSCAN
+# from sklearn.preprocessing import StandardScaler
+# import open3d as o3d
+# import hdbscan
 from trame.widgets.html import Html
 from trame.widgets import vuetify, html
 
@@ -258,7 +258,7 @@ def toggle_bounding_boxes():
         view.Update()
 
 # Bind the function to the controller
-ctrl.toggle_bounding_boxes = toggle_bounding_boxes
+# ctrl.toggle_bounding_boxes = toggle_bounding_boxes
 
 # Removed the initial call to add_bounding_boxes(stream, view) to prevent bounding boxes from showing at startup
 
@@ -401,81 +401,81 @@ ctrl.save_screenshot = save_screenshot
 # Drone Position and Altitude Simulation
 # -----------------------------------------------------------------------------
 
-# Initialize state variables
-state.drone_position = [37.7749, -122.4194]  # Starting position (latitude, longitude)
-state.altitude_data = []  # List to store altitude over time
+# # Initialize state variables
+# state.drone_position = [37.7749, -122.4194]  # Starting position (latitude, longitude)
+# state.altitude_data = []  # List to store altitude over time
 
-# Initialize the Plotly figure as a go.Figure object
-state.altitude_figure = go.Figure(
-    data=[
-        go.Scatter(
-            x=['2020-10-04', '2021-11-04', '2023-12-04'],
-            y=[90, 40, 60],
-            mode='lines+markers',
-            name='Altitude'
-        )
-    ],
-    layout=go.Layout(
-        title="Drone Altitude Over Time",
-        xaxis=dict(title="Time (s)"),
-        yaxis=dict(title="Altitude (m)"),
-        margin=dict(l=50, r=10, t=50, b=40),
-    )
-)
+# # Initialize the Plotly figure as a go.Figure object
+# state.altitude_figure = go.Figure(
+#     data=[
+#         go.Scatter(
+#             x=['2020-10-04', '2021-11-04', '2023-12-04'],
+#             y=[90, 40, 60],
+#             mode='lines+markers',
+#             name='Altitude'
+#         )
+#     ],
+#     layout=go.Layout(
+#         title="Drone Altitude Over Time",
+#         xaxis=dict(title="Time (s)"),
+#         yaxis=dict(title="Altitude (m)"),
+#         margin=dict(l=50, r=10, t=50, b=40),
+#     )
+# )
 
-def update_altitude_figure():
-    """
-    Update the altitude Plotly figure with new data.
-    """
-    times = [t for t, a in state.altitude_data]
-    altitudes = [a for t, a in state.altitude_data]
+# def update_altitude_figure():
+#     """
+#     Update the altitude Plotly figure with new data.
+#     """
+#     times = [t for t, a in state.altitude_data]
+#     altitudes = [a for t, a in state.altitude_data]
 
-    # Create a new Plotly Figure object with updated data
-    fig = go.Figure(
-        data=[
-            go.Scatter(
-                x=times,
-                y=altitudes,
-                mode='lines+markers',
-                name='Altitude'
-            )
-        ],
-        layout=go.Layout(
-            title='Drone Altitude Over Time',
-            xaxis=dict(title='Time (s)'),
-            yaxis=dict(title='Altitude (m)'),
-            margin=dict(l=50, r=10, t=50, b=40),
-        )
-    )
+#     # Create a new Plotly Figure object with updated data
+#     fig = go.Figure(
+#         data=[
+#             go.Scatter(
+#                 x=times,
+#                 y=altitudes,
+#                 mode='lines+markers',
+#                 name='Altitude'
+#             )
+#         ],
+#         layout=go.Layout(
+#             title='Drone Altitude Over Time',
+#             xaxis=dict(title='Time (s)'),
+#             yaxis=dict(title='Altitude (m)'),
+#             margin=dict(l=50, r=10, t=50, b=40),
+#         )
+#     )
 
-    # Update the state with the new figure
-    state.altitude_figure = fig
-    state.dirty("altitude_figure")  # Trigger UI update
+#     # Update the state with the new figure
+#     state.altitude_figure = fig
+#     state.dirty("altitude_figure")  # Trigger UI update
 
-@asynchronous.task
-async def update_drone_data():
-    """
-    Asynchronous task to simulate drone position and altitude updates.
-    """
-    start_time = time.time()
-    while True:
-        # Simulate drone position and altitude
-        current_time = time.time() - start_time
-        # Simulate position (latitude, longitude)
-        lat = 37.7749 + 0.0001 * current_time  # Simulated movement
-        lon = -122.4194 + 0.0001 * current_time
-        state.drone_position = [lat, lon]
-        # Simulate altitude
-        altitude = 100 + 10 * np.sin(current_time / 10.0)
-        state.altitude_data.append((current_time, altitude))
-        # Keep the last 100 data points
-        state.altitude_data = state.altitude_data[-100:]
-        # Update the Plotly figure
-        update_altitude_figure()
-        await asyncio.sleep(1)  # Update every second
+# @asynchronous.task
+# async def update_drone_data():
+#     """
+#     Asynchronous task to simulate drone position and altitude updates.
+#     """
+#     start_time = time.time()
+#     while True:
+#         # Simulate drone position and altitude
+#         current_time = time.time() - start_time
+#         # Simulate position (latitude, longitude)
+#         lat = 37.7749 + 0.0001 * current_time  # Simulated movement
+#         lon = -122.4194 + 0.0001 * current_time
+#         state.drone_position = [lat, lon]
+#         # Simulate altitude
+#         altitude = 100 + 10 * np.sin(current_time / 10.0)
+#         state.altitude_data.append((current_time, altitude))
+#         # Keep the last 100 data points
+#         state.altitude_data = state.altitude_data[-100:]
+#         # Update the Plotly figure
+#         update_altitude_figure()
+#         await asyncio.sleep(1)  # Update every second
 
-# Start updating drone data
-update_drone_data()
+# # Start updating drone data
+# update_drone_data()
 
 # -----------------------------------------------------------------------------
 # Callbacks
@@ -760,10 +760,10 @@ with SinglePageLayout(server) as layout:
                             Html(
                                 "<div style='position: absolute; top: 10px; left: 10px; color: black; z-index: 1; font-weight: bold;'>(C) Camera</div>"
                             )
-                            plotly_graph = Figure(
-                                figure=state.altitude_figure,  # Pass the Plotly figure object directly
-                                style="height:100%; width:100%;",
-                            )
+                            # plotly_graph = Figure(
+                            #     figure=state.altitude_figure,  # Pass the Plotly figure object directly
+                            #     style="height:100%; width:100%;",
+                            # )
 
 
 apply_color_template("cyan_pink", view)
