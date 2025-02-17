@@ -1,3 +1,8 @@
+# Overview
+This is a web application you can run with our lightweight LiDAR drones. The application
+is meant to help visualize LiDAR information being streamed from the drone to better
+navigate indoor ambiguous environments.
+
 # Setup Instructions
 
 ### 1. Install LidarView
