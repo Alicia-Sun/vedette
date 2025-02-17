@@ -1,3 +1,9 @@
+# Overview
+This is a web application you can run with our lightweight LiDAR drones. The application
+is meant to help visualize LiDAR information being streamed from the drone to better
+navigate indoor ambiguous environments.
+![application](https://i.ibb.co/MyWjd3mC/Screenshot-2025-02-16-213926.png)
+
 # Setup Instructions
 
 ### 1. Install LidarView
@@ -25,8 +31,18 @@ Run the trame_app with:
 
 lvpython [trame application name] --venv .lvenv
   
-Run other applications similarly
+Run frontend:
+Frontend embeds the trame server in an iframe.
+
+cd frontend/web-app
+npm start
 
 # Errors you might face
 - Module not found error: make sure you package installed with the virtual environment activated
 - lvpython not recognized: you did not add path to environment variables correctly
+- numpy issues: go into the file that is erroring, which should be one of the installed packages in
+  your venv (ex. vtkmodules\util\numpy_support.py). Manually edit all areas of numpy.int32 numpy.int64
+  numpy.uint32 numpy.uint64 and change to just int
+  
+
+  
