@@ -13,8 +13,22 @@ state, ctrl = server.state, server.controller
 # Load LiDAR data
 inputfile = 'C:/Users/alici/OneDrive/Documents/VEDETTE/vedette/test_data.pcap'
 stream = lvsmp.OpenPCAP(inputfile, "VLP-16", "Velodyne")
-representation = simple.Show(stream)
+
+# Original Point Representation
+# representation = simple.Show(stream)
+
+# Overlaying with Sphere filter instead
 view = simple.GetRenderView()
+sphere = simple.Sphere(
+        Radius=0.25,
+        ThetaResolution=16,
+        PhiResolution=16,
+    )
+glyph = simple.Glyph(Input=stream, GlyphType=sphere)
+glyph.GlyphMode = 'All Points'
+glyph.GlyphType.Radius = 0.1
+glyph.ScaleFactor = 0.2
+representation = simple.Show(glyph, view)
 
 # Set up the render view
 view.UseColorPaletteForBackground = 0
@@ -90,6 +104,7 @@ view.OrientationAxesVisibility = 0
 view = simple.Render()
 state.slam = None
 
+
 # -----------------------------------------------------------------------------
 # Point Sizes
 # -----------------------------------------------------------------------------
@@ -103,10 +118,13 @@ def update_point_size(point_size, **kwargs):
     Args:
         point_size (int): The current value from the slider (1-7).
     """
-    size_mapping = {1: 1, 2: 3, 3: 5, 4: 7, 5: 9, 6: 11, 7: 13}
-    actual_size = size_mapping.get(point_size, 5)  # Default to 5
+    size_mapping = {1: 0.1, 2: 0.3, 3: 0.6, 4: 0.9, 5: 1.3, 6: 1.7, 7: 2.5}
+    actual_size = size_mapping.get(point_size, 0.1)
 
-    representation.PointSize = actual_size
+    # Original point representation
+    # representation.PointSize = actual_size
+    
+    glyph.GlyphType.Radius = actual_size
     view.Update()
     simple.Render()
     ctrl.view_update()
