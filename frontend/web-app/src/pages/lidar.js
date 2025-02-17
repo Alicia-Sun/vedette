@@ -2,76 +2,126 @@ import React, { useState, useEffect, useRef } from "react";
 import "./lidar.css";
 import logo from "../images/vedette_logo.png";
 import ColorButton from "../components/color_button.js";
-import ClientCommunicator from "@kitware/trame-iframe";
-import axios from "axios";
+import { TrameIframeApp } from '@kitware/trame-react';
 
-const Lidar = () => {
-  const [colorTemplate, setColorTemplate] = useState("cyan_pink");
-  const [pointSize, setPointSize] = useState(3);
-  const iframeRef = useRef(null);
-  const [trame, setTrame] = useState(null);
-  
+// inspired by trame-react examples
+function debounce(func, wait) {
+  let timeout;
 
-  useEffect(() => {
-    const iframe = document.getElementById("trame_app");
-    if (iframe) {
-      // The second argument is the 'target origin' (i.e. the domain where Trame is hosted)
-      const communicator = new ClientCommunicator(iframe, "http://localhost:8080");
-      setTrame(communicator);
-      // communicator.on("user_data", (data) => {
-      //   console.log("Received user data:", data);
-      // });
-      console.log(iframe);
-      console.log("trying to get user data");
-      communicator.trigger("get_user_data");
-      console.log('done');
+  return function (...args) {
+    const context = this;
+
+    clearTimeout(timeout); // Clears the previous timeout
+    timeout = setTimeout(() => func.apply(context, args), wait); // Sets a new timeout
+  };
+}
+
+function deepEqual(obj1, obj2) {
+  if (obj1 === obj2) return true;
+  if (
+    typeof obj1 !== 'object' ||
+    obj1 === null ||
+    typeof obj2 !== 'object' ||
+    obj2 === null
+  )
+    return false;
+
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+
+  if (keys1.length !== keys2.length) return false;
+
+  for (let key of keys1) {
+    if (!keys2.includes(key) || !deepEqual(obj1[key], obj2[key])) {
+      return false;
     }
-    
-    
-  }, []);
-  // Send color template update to backend when trame is ready
-  useEffect(() => {
-    if (trame) {
-      // The first argument to trigger() must match the “@ctrl.trigger(...)”
-      // we used in Python: "set_color_template"
-      
-      console.log('a');
-      trame.trigger("set_color_template", colorTemplate);
-      console.log('b');
-    }
-  }, [colorTemplate, trame]);
-
-  function testCLick () {
-    console.log("blah");
-      // axios.post("http://127.0.0.1:8000/set_color_template", {
-      //   template_name: "red"  // Change to red
-      // })
-      // .then(response => {
-      //   console.log("API Response:", response.data);
-      // })
-      // .catch(error => {
-      //   console.error("Error calling API:", error);
-      // });
   }
 
-  // Send point size update to backend when trame is ready
-  useEffect(() => {
-    if (trame) {
-      trame.trigger("set_point_size", pointSize);
+  return true;
+}
+
+function stateIsSync(localState, trameState) {
+  const localStateKeys = Object.keys(localState);
+  const trameStatekeys = Object.keys(trameState);
+
+  for (let localKey of localStateKeys) {
+    if (
+      !trameStatekeys.includes(localKey) ||
+      !deepEqual(localState[localKey], trameState[localKey])
+    ) {
+      return false;
     }
-  }, [pointSize, trame]);
+  }
+
+  return true;
+}
+
+const Lidar = () => {
+  const [viewerState, setViewerState] = useState({
+    color_template: "cyan_pink",
+    point_size: 3,
+  });
+  const trameCommunicator = useRef(null);
+  const synchronizeTrameState = useRef(null);
+
+  useEffect(() => {
+    synchronizeTrameState.current = debounce((viewerState) => {
+      if (!trameCommunicator.current) {
+        return;
+      }
+
+      trameCommunicator.current.state.get().then((trame_state) => {
+        if (!stateIsSync(viewerState, trame_state)) {
+          trameCommunicator.current.state.update(viewerState);
+        }
+      });
+    }, 25);
+  }, []);
+
+  useEffect(() => {
+    synchronizeTrameState.current(viewerState);
+  }, [viewerState]);
+  
+
+  const onViewerReady = (comm) => {
+    trameCommunicator.current = comm;
+
+    trameCommunicator.current.state.onReady(() => {
+      trameCommunicator.current.state.watch(
+        ['point_size'],
+        (point_size) => {
+          console.log({ point_size });
+        }
+      );
+      trameCommunicator.current.state.watch(
+        ['color_template'],
+        (color_template) => {
+          console.log({ color_template });
+        }
+      );
+
+      trameCommunicator.current.state.watch(
+        ['color_template', 'point_size'],
+        (color_template, point_size) => {
+          setViewerState((prevState) => ({
+            ...prevState,
+            color_template: color_template ?? "cyan_pink",
+            point_size: point_size ?? 3,
+          }));
+        }
+      );
+    });
+  };
 
   return (
     <div className="lidar-container">
       <div className="iframe-container">
-        <iframe 
-          ref={iframeRef}
-          id="trame_app"
-          title="Main Iframe"
-          className="main-iframe"
-          src="http://localhost:8080/index.html" 
-          frameBorder="0"
-        ></iframe>
+        <TrameIframeApp
+            iframeId={"trame_app"}
+            url={"http://localhost:8080/index.html"}
+            onCommunicatorReady={onViewerReady}
+        />
+
         <div className="side-iframes">
           <iframe 
             title="Side Iframe 1"
@@ -97,7 +147,7 @@ const Lidar = () => {
           </div>
           <label className="measurement-label"> &nbsp;Measurement:</label>
           <div className="button-group2">
-            <button className="action-button connected" onClick={testCLick}>[M] Add Measurement</button>
+            <button className="action-button connected" >[M] Add Measurement</button>
             <button className="action-button connected">[C] Clear</button>
           </div>
         </div>
@@ -106,7 +156,14 @@ const Lidar = () => {
         <div className="section-2">
           <label className="bottom-label"> &nbsp;Color Template:</label>
           <div id="color-button-group" className="color-button-group">
-            <ColorButton colorTemplate={colorTemplate} setColorTemplate={setColorTemplate} />
+            <ColorButton color_template={viewerState.color_template} 
+              setColorTemplate={(color) => {
+                setViewerState((prevViewerState) => ({
+                  ...prevViewerState,
+                  color_template: color,
+                }));
+              }}
+            /> 
           </div>
 
           <div className="point-settings-container">
@@ -119,8 +176,13 @@ const Lidar = () => {
                 max="7"
                 step="1"
                 className="slider"
-                value={pointSize}
-                onChange={(e) => setPointSize(parseInt(e.target.value))}
+                value={viewerState.point_size || 3}
+                onChange={(e) => {
+                  setViewerState((prevViewerState) => ({
+                    ...prevViewerState,
+                    point_size: parseInt(e.target.value, 10) || 3,
+                  }));
+                }}
               />
             </div>
 
@@ -139,7 +201,7 @@ const Lidar = () => {
 
         {/* Section 3 */}
         <div className="section-3">
-          <img src={logo} className="logo" /> 
+          <img src={logo} className="logo" alt="vedette_logo"/> 
         </div>
       </div>
     </div>
