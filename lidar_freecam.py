@@ -1,5 +1,6 @@
 import paraview.web.venv
-from trame.app import get_server
+import asyncio
+from trame.app import get_server, asynchronous
 from trame.widgets import iframe, paraview
 from paraview import simple
 from lidarview import simple as lvsmp
@@ -106,6 +107,35 @@ state.slam = None
 
 
 # -----------------------------------------------------------------------------
+# Callbacks
+# -----------------------------------------------------------------------------
+
+@state.change("play")
+@asynchronous.task
+async def update_play(**kwargs):
+    while state.play:
+        if lvsmp.RefreshStream(stream):
+            ctrl.view_update_image()
+            ctrl.view_update_geometry()
+        await asyncio.sleep(0.1)
+
+def on_slam_start():
+    if state.slam:
+        return
+    state.slam = simple.SLAMonline(PointCloud=stream)
+    simple.Hide(stream, view)
+    for i in range(0, 7):
+        slamDisplay = simple.Show(simple.OutputPort(state.slam, i), view)
+        slamDisplay.Representation = 'Surface'
+
+    view.Update()
+    simple.SetActiveSource(state.slam)
+
+def on_slam_reset():
+    state.slam.Resetstate()
+
+
+# -----------------------------------------------------------------------------
 # Point Sizes
 # -----------------------------------------------------------------------------
 
@@ -146,7 +176,7 @@ with DivLayout(server) as layout:
     html_view = paraview.VtkRemoteLocalView(
         view,
         namespace="view",
-        style="height: 99vh; width: 99vw; margin: auto; position: relative;"
+        style="height: 100vh; width: 100vw; margin: 0px; position: relative;"
     )
     ctrl.view_update = html_view.update
     ctrl.view_update_geometry = html_view.update_geometry

@@ -116,12 +116,13 @@ const Lidar = () => {
   return (
     <div className="lidar-container">
       <div className="iframe-container">
-        <TrameIframeApp
+        <div className="main-iframe">
+          <TrameIframeApp
             iframeId={"trame_app"}
             url={"http://localhost:8080/index.html"}
             onCommunicatorReady={onViewerReady}
-        />
-
+          />
+        </div>
         <div className="side-iframes">
           <iframe 
             title="Side Iframe 1"
