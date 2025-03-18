@@ -44,5 +44,11 @@ npm start
   your venv (ex. vtkmodules\util\numpy_support.py). Manually edit all areas of numpy.int32 numpy.int64
   numpy.uint32 numpy.uint64 and change to just int
   
+# Additional self notes
+You can use a .pcap file as if it was a stream by running > PacketFileSender.exe test_data.pcap 
+in a separate terminal to send it as a stream.
+Simple.py is example code from the Kitware site on running a stream.
+Currently, use lvenv2 since there are venv issues. That is the only functional one.
+
 
   
