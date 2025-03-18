@@ -1,5 +1,6 @@
 import paraview.web.venv
 import asyncio
+import os
 
 from trame.app import get_server, asynchronous
 from trame.widgets import vuetify, paraview
@@ -7,94 +8,89 @@ from trame.ui.vuetify import SinglePageLayout
 
 from paraview import simple
 from lidarview import simple as lvsmp
+import pipeline_setup_helpers as helpers
 
 # -----------------------------------------------------------------------------
 # trame setup
 # -----------------------------------------------------------------------------
 
-server = get_server(client_type = "vue2")
+server = get_server(client_type="vue2")
 state, ctrl = server.state, server.controller
 
 # -----------------------------------------------------------------------------
 # ParaView code
 # -----------------------------------------------------------------------------
 
-intensityLUT = simple.GetColorTransferFunction('intensity')
-intensityLUT.RGBPoints = [0.0, 0.0, 0.0, 1.0, 40.0, 1.0, 1.0, 0.0, 100.0, 1.0, 0.0, 0.0]
-intensityLUT.ColorSpace = 'HSV'
-
-stream = lvsmp.OpenSensorStream("VLP-16", "Velodyne")
-stream.Start()
-representation = simple.Show(stream)
-simple.ColorBy(representation, ('POINTS', 'intensity'))
-
-view = simple.GetRenderView()
-view.UseColorPaletteForBackground = 0
-view.Background = [0.0, 0.0, 0.2]
-view.OrientationAxesVisibility = 0
-view = simple.Render()
-
+state.pcap_file = "C:/Users/alici/OneDrive/Documents/VEDETTE/vedette/test_data.pcap"
 state.slam = None
 
-# -----------------------------------------------------------------------------
-# Callbacks
-# -----------------------------------------------------------------------------
+view = helpers.setup_view(use_gradient=True, background=[0.0, 0.0, 0.2])
 
-@state.change("play")
-@asynchronous.task
-async def update_play(**kwargs):
-    while state.play:
-        if lvsmp.RefreshStream(stream):
-            ctrl.view_update_image()
-            ctrl.view_update_geometry()
-        await asyncio.sleep(0.1)
+def load_pcap_file():
+    print("cp1")
+    if not state.pcap_file or not os.path.exists(state.pcap_file):
+        print("Invalid .pcap file")
+        return
+    
+    lidar_reader = helpers.load_lidar_frames(state.pcap_file)
+    print("cp2")
+    simple.Show(lidar_reader, view)
+    view.Update()
+    print("cp3")
+    state.lidar_reader = lidar_reader
 
 def on_slam_start():
     if state.slam:
         return
-    state.slam = simple.SLAMonline(PointCloud=stream)
-    simple.Hide(stream, view)
-    for i in range(0, 7):
-        slamDisplay = simple.Show(simple.OutputPort(state.slam, i), view)
-        slamDisplay.Representation = 'Surface'
-
+    
+    if not hasattr(state, "lidar_reader"):
+        print("No LiDAR data loaded.")
+        return
+    
+    state.slam = simple.SLAMoffline(PointCloud=state.lidar_reader)
+    simple.Hide(state.lidar_reader, view)
+    
+    for i in range(7):
+        slam_display = simple.Show(simple.OutputPort(state.slam, i), view)
+        slam_display.Representation = 'Surface'
+    
     view.Update()
     simple.SetActiveSource(state.slam)
 
 def on_slam_reset():
-    state.slam.Resetstate()
-
+    if state.slam:
+        state.slam.Resetstate()
+    
 # -----------------------------------------------------------------------------
 # GUI
 # -----------------------------------------------------------------------------
 
-state.trame__title = "LidarView"
+state.trame__title = "PCAP LiDAR SLAM"
 
+load_pcap_file()
 with SinglePageLayout(server) as layout:
-    # layout.title.set_text("LiDAR Stream")
-    # layout.icon.click = ctrl.view_reset_camera
+    layout.title.set_text("LiDAR PCAP Viewer")
+    layout.icon.click = ctrl.view_reset_camera
 
     with layout.toolbar:
         vuetify.VSpacer()
-
-        vuetify.VCheckbox(
-            v_model=("play", True),
-            off_icon="mdi-play",
-            on_icon="mdi-stop",
-            hide_details=True,
-            dense=True,
-            classes="mx-2",
+        
+        vuetify.VBtn(
+            "Load PCAP",
+            click=load_pcap_file,
+            color="primary",
+            outlined=True,
         )
 
         vuetify.VBtn(
-            "Start a Slam",
+            "Start SLAM",
             click=on_slam_start,
             color="primary",
             outlined=True,
         )
 
         vuetify.VBtn(
-            "Reset Slam",
+            "Reset SLAM",
             click=on_slam_reset,
             color="primary",
             outlined=True,
@@ -117,7 +113,6 @@ with SinglePageLayout(server) as layout:
             ctrl.view_update_geometry = html_view.update_geometry
             ctrl.view_update_image = html_view.update_image
             ctrl.view_reset_camera = html_view.reset_camera
-
 
 # -----------------------------------------------------------------------------
 # Main

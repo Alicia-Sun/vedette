@@ -1,5 +1,8 @@
+import paraview.web.venv
 import asyncio
 import paraview.simple as smp
+from lidarview import simple as lvsmp
+
 
 # hardcoded import
 from matrix_rotation import rotation_matrix_from_euler
@@ -26,7 +29,7 @@ tach.params['verbose'] = False
 
 # Load LiDAR data
 inputfile = 'C:/Users/alici/OneDrive/Documents/VEDETTE/vedette/test_data.pcap'
-stream = smp.OpenPCAP(inputfile, "VLP-16", "Velodyne")
+stream = lvsmp.OpenPCAP(inputfile, "VLP-16", "Velodyne")
 view = smp.GetRenderView()
 representation = smp.Show(stream, view)
 
@@ -45,7 +48,9 @@ def start_cue():
     return trajectory_output, camera
 
 def update_camera():
+    
     trajectory_output, camera = start_cue()
+    print(camera)
     view.CameraPosition = camera.position
     view.CameraFocalPoint = camera.focal_point
     view.CameraViewUp = camera.up_vector

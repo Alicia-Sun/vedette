@@ -6,36 +6,41 @@ from paraview import simple
 from lidarview import simple as lvsmp
 from trame.ui.html import DivLayout
 
+from trame.widgets import vuetify, paraview
+from trame.ui.vuetify import SinglePageLayout
+
 
 # Initialize the server
-server = get_server() #client_type="vue2"
+server = get_server(client_type="vue2") #client_type="vue2"
 state, ctrl = server.state, server.controller
 
 # Load LiDAR data
-inputfile = 'C:/Users/alici/OneDrive/Documents/VEDETTE/vedette/test_data.pcap'
-stream = lvsmp.OpenPCAP(inputfile, "VLP-16", "Velodyne")
+# inputfile = 'C:/Users/alici/OneDrive/Documents/VEDETTE/vedette/test_data.pcap'
+# stream = lvsmp.OpenPCAP(inputfile, "VLP-16", "Velodyne")
+stream = lvsmp.OpenSensorStream("VLP-16", "Velodyne")
+stream.Start()
 
-# Original Point Representation
-# representation = simple.Show(stream)
+
+representation = simple.Show(stream)
+view = simple.GetRenderView()
 
 # Overlaying with Sphere filter instead
-view = simple.GetRenderView()
-sphere = simple.Sphere(
-        Radius=0.25,
-        ThetaResolution=16,
-        PhiResolution=16,
-    )
-glyph = simple.Glyph(Input=stream, GlyphType=sphere)
-glyph.GlyphMode = 'All Points'
-glyph.GlyphType.Radius = 0.1
-glyph.ScaleFactor = 0.2
-representation = simple.Show(glyph, view)
+# sphere = simple.Sphere(
+#         Radius=0.25,
+#         ThetaResolution=16,
+#         PhiResolution=16,
+#     )
+# glyph = simple.Glyph(Input=stream, GlyphType=sphere)
+# glyph.GlyphMode = 'All Points'
+# glyph.GlyphType.Radius = 0.1
+# glyph.ScaleFactor = 0.2
+# representation = simple.Show(glyph, view)
 
 # Set up the render view
 view.UseColorPaletteForBackground = 0
 view.Background = [0.0, 0.0, 0.0]  # Black background
 view.OrientationAxesVisibility = 0
-simple.Render()
+view = simple.Render()
 
 
 # -----------------------------------------------------------------------------
@@ -80,6 +85,7 @@ def create_color_template(template_name):
 
 # Function to apply a color template
 def apply_color_template(color_template, **kwargs):
+    print('hellooo')
     """
     Apply a color scheme to the point cloud visualization.
 
@@ -110,6 +116,8 @@ state.slam = None
 # Callbacks
 # -----------------------------------------------------------------------------
 
+state.loop_pcap = True
+
 @state.change("play")
 @asynchronous.task
 async def update_play(**kwargs):
@@ -120,6 +128,7 @@ async def update_play(**kwargs):
         await asyncio.sleep(0.1)
 
 def on_slam_start():
+    print("starting slam")
     if state.slam:
         return
     state.slam = simple.SLAMonline(PointCloud=stream)
@@ -139,32 +148,34 @@ def on_slam_reset():
 # Point Sizes
 # -----------------------------------------------------------------------------
 
-state.point_size = 3
+# state.point_size = 3
 
-def update_point_size(point_size, **kwargs):
-    """
-    Update the point size in the ParaView representation.
+# def update_point_size(point_size, **kwargs):
+#     """
+#     Update the point size in the ParaView representation.
 
-    Args:
-        point_size (int): The current value from the slider (1-7).
-    """
-    size_mapping = {1: 0.1, 2: 0.3, 3: 0.6, 4: 0.9, 5: 1.3, 6: 1.7, 7: 2.5}
-    actual_size = size_mapping.get(point_size, 0.1)
+#     Args:
+#         point_size (int): The current value from the slider (1-7).
+#     """
+#     size_mapping = {1: 0.1, 2: 0.3, 3: 0.6, 4: 0.9, 5: 1.3, 6: 1.7, 7: 2.5}
+#     actual_size = size_mapping.get(point_size, 0.1)
 
-    # Original point representation
-    # representation.PointSize = actual_size
+#     # Original point representation
+#     # representation.PointSize = actual_size
     
-    glyph.GlyphType.Radius = actual_size
-    view.Update()
-    simple.Render()
-    ctrl.view_update()
+#     glyph.GlyphType.Radius = actual_size
+#     view.Update()
+#     simple.Render()
+#     ctrl.view_update()
 
-state.change("point_size")(update_point_size)
+# state.change("point_size")(update_point_size)
 
 
 # -----------------------------------------------------------------------------
 # GUI Setup
 # -----------------------------------------------------------------------------
+
+state.play = True
 
 with DivLayout(server) as layout:
     layout.toolbar = None
@@ -182,6 +193,7 @@ with DivLayout(server) as layout:
     ctrl.view_update_geometry = html_view.update_geometry
     ctrl.view_update_image = html_view.update_image
     ctrl.view_reset_camera = html_view.reset_camera
+
     
 if __name__ == "__main__":
     server.start()

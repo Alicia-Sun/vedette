@@ -64,6 +64,12 @@ const Lidar = () => {
   const trameCommunicator = useRef(null);
   const synchronizeTrameState = useRef(null);
 
+  const startSLAM = () => {
+    if (!trameCommunicator.current) return;
+    trameCommunicator.current.state.update({ play: true }); // Set state.slam to "start"
+    console.log("pressing start")
+  };  
+
   useEffect(() => {
     synchronizeTrameState.current = debounce((viewerState) => {
       if (!trameCommunicator.current) {
@@ -143,7 +149,7 @@ const Lidar = () => {
         {/* Section 1 */}
         <div className="section-1">
           <div className="button-group1">
-            <button className="action-button connected">▶ Launch SLAM</button>
+            <button className="action-button connected" onClick={startSLAM}>▶ Launch SLAM</button>
             <button className="action-button connected">Reset SLAM</button>
           </div>
           <label className="measurement-label"> &nbsp;Measurement:</label>
