@@ -195,7 +195,6 @@ state.change("color_template")(apply_color_template)
 # -----------------------------------------------------------------------------
 
 state.loop_pcap = True
-state.counter = 0
 
 @state.change("play")
 @asynchronous.task
@@ -203,9 +202,7 @@ async def update_play(**kwargs):
     print("calling update to play")
     while state.play:
         if lvsmp.RefreshStream(stream):
-            if state.counter < 20:
-                set_camera_to_lidar()
-                state.counter += 1
+            set_camera_to_lidar()
             # set_camera_to_lidar()
             ctrl.view_update_image()
             ctrl.view_update_geometry()
