@@ -8,6 +8,53 @@ from trame.ui.html import DivLayout
 
 from trame.widgets import vuetify, paraview
 from trame.ui.vuetify import SinglePageLayout
+import subprocess
+import atexit
+import time
+import threading
+import signal
+import os
+
+def start_streaming():
+    """Start the streaming process and return the process object."""
+    return subprocess.Popen(["PacketFileSender.exe", "test_data.pcap"])
+
+def monitor_streaming_process():
+    """Monitor and restart the streaming process in a loop."""
+    global streaming_process
+    while True:
+        # Check if the process has ended
+        return_code = streaming_process.poll()
+        if return_code is not None:  # Process has ended
+            print(f"Streaming process ended with return code {return_code}. Restarting...")
+            streaming_process = start_streaming()  # Restart the process
+        else:
+            # Check if the process is hanging (e.g., no output for a long time)
+            # You can add additional checks here if needed.
+            pass
+
+        time.sleep(1)  # Wait for a second before checking again
+
+def cleanup():
+    """Ensure the streaming process is terminated when the script exits."""
+    global streaming_process
+    if streaming_process.poll() is None:  # Process is still running
+        print("Terminating streaming process...")
+        streaming_process.terminate()  # Try to terminate gracefully
+        streaming_process.wait(timeout=5)  # Wait for the process to terminate
+        if streaming_process.poll() is None:  # If still running, force kill
+            print("Force killing streaming process...")
+            streaming_process.kill()
+
+# Start the initial streaming process
+streaming_process = start_streaming()
+
+# Ensure the streaming process is terminated when the script exits
+atexit.register(cleanup)
+
+# Start the monitoring thread
+monitor_thread = threading.Thread(target=monitor_streaming_process, daemon=True)
+monitor_thread.start()
 
 
 # Initialize the server
@@ -169,6 +216,25 @@ def on_slam_reset():
 #     ctrl.view_update()
 
 # state.change("point_size")(update_point_size)
+
+state.point_size = 3
+
+def update_point_size(point_size, **kwargs):
+    """
+    Update the point size in the ParaView representation.
+
+    Args:
+        point_size (int): The current value from the slider (1-7).
+    """
+    size_mapping = {1: 1, 2: 1.5, 3: 2, 4: 3.5, 5: 4.5, 6: 6, 7: 7}
+    actual_size = size_mapping.get(point_size, 5)  # Default to 5
+
+    representation.PointSize = actual_size
+    view.Update()
+    simple.Render()
+    ctrl.view_update()
+
+state.change("point_size")(update_point_size)
 
 
 # -----------------------------------------------------------------------------
