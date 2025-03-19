@@ -8,28 +8,23 @@ from trame.ui.html import DivLayout
 from trame.widgets import paraview
 import subprocess
 
-# Global variable to store the SLAM object
 slam_object = None
 
 def start_streaming(port):
     """Start the streaming process and return the process object."""
-    return subprocess.Popen(["PacketFileSender.exe", "test_data.pcap", "--lidarPort", str(port)])
+    return subprocess.Popen(["PacketFileSender.exe", "test_data.pcap", "--loop", "--lidarPort", str(port)])
 
-# Start the initial streaming process on port 2369
 streaming_process = start_streaming(2369)
 
-# Initialize the server
-server = get_server(client_type="vue2")  # client_type="vue2"
+server = get_server(client_type="vue2")
 state, ctrl = server.state, server.controller
 
-# Load LiDAR data
 stream = lvsmp.OpenSensorStream("VLP-16", "Velodyne", ListeningPort=2369)
 stream.Start()
 
 representation = simple.Show(stream)
 view = simple.GetRenderView()
 
-# Set up the render view
 view.UseColorPaletteForBackground = 0
 view.Background = [0.0, 0.0, 0.0]  # Black background
 view.OrientationAxesVisibility = 0

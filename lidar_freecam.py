@@ -5,22 +5,20 @@ from trame.widgets import iframe, paraview
 from paraview import simple
 from lidarview import simple as lvsmp
 from trame.ui.html import DivLayout
-
 from trame.widgets import paraview
 import subprocess
 
-# Global variable to store the SLAM object
 slam_object = None
+
 
 def start_streaming(port):
     """Start the streaming process and return the process object."""
     return subprocess.Popen(["PacketFileSender.exe", "test_data.pcap", "--loop", "--lidarPort", str(port)])
 
-# Start the initial streaming process on port 2368
 streaming_process = start_streaming(2368)
 
 # Initialize the server
-server = get_server(client_type="vue2") #client_type="vue2"
+server = get_server(client_type="vue2")
 state, ctrl = server.state, server.controller
 
 # Load LiDAR data
@@ -29,34 +27,33 @@ state, ctrl = server.state, server.controller
 stream = lvsmp.OpenSensorStream("VLP-16", "Velodyne", ListeningPort=2368)
 stream.Start()
 
-
-representation = simple.Show(stream)
+# representation = simple.Show(stream)  # Hiding the original points
 view = simple.GetRenderView()
 
-# Overlaying with Sphere filter instead
-# sphere = simple.Sphere(
-#         Radius=0.25,
-#         ThetaResolution=16,
-#         PhiResolution=16,
-#     )
-# glyph = simple.Glyph(Input=stream, GlyphType=sphere)
-# glyph.GlyphMode = 'All Points'
-# glyph.GlyphType.Radius = 0.1
-# glyph.ScaleFactor = 0.2
-# representation = simple.Show(glyph, view)
+sphere = simple.Sphere(
+         Radius=0.25,
+         ThetaResolution=8,
+         PhiResolution=8,
+     )
+glyph = simple.Glyph(Input=stream, GlyphType=sphere)
+glyph.GlyphMode = 'Every Nth Point' # 'All Points'
+glyph.Stride = 3
+glyph.GlyphType.Radius = 0.1
+representation = simple.Show(glyph, view)
+representation.Diffuse = 0.9 
+representation.Ambient = 1.0
+simple.Hide(stream, view)
 
-# Set up the render view
 view.UseColorPaletteForBackground = 0
 view.Background = [0.0, 0.0, 0.0]  # Black background
 view.OrientationAxesVisibility = 0
 view = simple.Render()
-
+state.slam = None
 
 # -----------------------------------------------------------------------------
 # Color Scheme
 # -----------------------------------------------------------------------------
 
-# Function to create LUTs for different color templates
 def create_color_template(template_name):
     lut = simple.GetColorTransferFunction(template_name)
     if template_name == "intensity":
@@ -92,7 +89,6 @@ def create_color_template(template_name):
         lut.ColorSpace = 'HSV'
     return lut
 
-# Function to apply a color template
 def apply_color_template(color_template, **kwargs):
     print('hellooo')
     """
@@ -114,18 +110,10 @@ def apply_color_template(color_template, **kwargs):
 state.color_template = "cyan_pink"
 state.change("color_template")(apply_color_template)
 
-view.UseColorPaletteForBackground = 0
-view.Background = [0.0, 0.0, 0.0]
-view.OrientationAxesVisibility = 0
-view = simple.Render()
-state.slam = None
-
 
 # -----------------------------------------------------------------------------
 # Callbacks
 # -----------------------------------------------------------------------------
-
-state.loop_pcap = True
 
 @state.change("play")
 @asynchronous.task
@@ -157,28 +145,6 @@ def on_slam_reset():
 # Point Sizes
 # -----------------------------------------------------------------------------
 
-# state.point_size = 3
-
-# def update_point_size(point_size, **kwargs):
-#     """
-#     Update the point size in the ParaView representation.
-
-#     Args:
-#         point_size (int): The current value from the slider (1-7).
-#     """
-#     size_mapping = {1: 0.1, 2: 0.3, 3: 0.6, 4: 0.9, 5: 1.3, 6: 1.7, 7: 2.5}
-#     actual_size = size_mapping.get(point_size, 0.1)
-
-#     # Original point representation
-#     # representation.PointSize = actual_size
-    
-#     glyph.GlyphType.Radius = actual_size
-#     view.Update()
-#     simple.Render()
-#     ctrl.view_update()
-
-# state.change("point_size")(update_point_size)
-
 state.point_size = 3
 
 def update_point_size(point_size, **kwargs):
@@ -188,13 +154,32 @@ def update_point_size(point_size, **kwargs):
     Args:
         point_size (int): The current value from the slider (1-7).
     """
-    size_mapping = {1: 1, 2: 1.5, 3: 2, 4: 3.5, 5: 4.5, 6: 6, 7: 7}
-    actual_size = size_mapping.get(point_size, 5)  # Default to 5
-
-    representation.PointSize = actual_size
+    size_mapping = {1: 0.02, 2: 0.04, 3: 0.06, 4: 0.1, 5: 0.15, 6: 0.2, 7: 0.25}
+    actual_size = size_mapping.get(point_size, 0.1)
+    
+    glyph.GlyphType.Radius = actual_size
     view.Update()
     simple.Render()
     ctrl.view_update()
+
+
+# USING ORIGINAL POINTS INSTEAD OF GLYPHS
+# state.point_size = 3
+
+# def update_point_size(point_size, **kwargs):
+#     """
+#     Update the point size in the ParaView representation.
+
+#     Args:
+#         point_size (int): The current value from the slider (1-7).
+#     """
+#     size_mapping = {1: 1, 2: 1.5, 3: 2, 4: 3.5, 5: 4.5, 6: 6, 7: 7}
+#     actual_size = size_mapping.get(point_size, 5)  # Default to 5
+
+#     representation.PointSize = actual_size
+#     view.Update()
+#     simple.Render()
+#     ctrl.view_update()
 
 state.change("point_size")(update_point_size)
 
