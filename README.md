@@ -51,7 +51,7 @@ Simple.py is example code from the Kitware site on running a stream.
 Currently, use lvenv2 since there are venv issues. That is the only functional one.
 
 TO RUN: (might need to open browser in windowed mode for some reason)
-- run backend on one terminal: vedette> lvpython lidar_freecam.py --venv .lvenv2
+- run backend freecam on one terminal: vedette> lvpython lidar_freecam.py --venv .lvenv2
+- run backend lidar_pov on another terminal: vedette> lvpython lidar_pov.py --venv .lvenv2
 - run frontend on a separate terminal: vedette\frontend\web-app> npm start
-- if you are streaming live, you are done
-- if running a .pcap file, you have to stream it in a separate terminal: vedette> PacketFileSender.exe test_data.pcap
+- if streaming live, disconnect the pcap streamer within backends first
