@@ -5,62 +5,25 @@ from trame.widgets import iframe, paraview
 from paraview import simple
 from lidarview import simple as lvsmp
 from trame.ui.html import DivLayout
-from trame.widgets import vuetify, paraview
-from trame.ui.vuetify import SinglePageLayout
+from trame.widgets import paraview
 import subprocess
-import atexit
-import time
-import threading
-import signal
-import os
 
-def start_streaming():
+# Global variable to store the SLAM object
+slam_object = None
+
+def start_streaming(port):
     """Start the streaming process and return the process object."""
-    return subprocess.Popen(["PacketFileSender.exe", "test_data.pcap"])
+    return subprocess.Popen(["PacketFileSender.exe", "test_data.pcap", "--lidarPort", str(port)])
 
-def monitor_streaming_process():
-    """Monitor and restart the streaming process in a loop."""
-    global streaming_process
-    while True:
-        # Check if the process has ended
-        return_code = streaming_process.poll()
-        if return_code is not None:  # Process has ended
-            print(f"Streaming process ended with return code {return_code}. Restarting...")
-            streaming_process = start_streaming()  # Restart the process
-        else:
-            # Check if the process is hanging (e.g., no output for a long time)
-            # You can add additional checks here if needed.
-            pass
-
-        time.sleep(1)  # Wait for a second before checking again
-
-def cleanup():
-    """Ensure the streaming process is terminated when the script exits."""
-    global streaming_process
-    if streaming_process.poll() is None:  # Process is still running
-        print("Terminating streaming process...")
-        streaming_process.terminate()  # Try to terminate gracefully
-        streaming_process.wait(timeout=5)  # Wait for the process to terminate
-        if streaming_process.poll() is None:  # If still running, force kill
-            print("Force killing streaming process...")
-            streaming_process.kill()
-
-# Start the initial streaming process
-streaming_process = start_streaming()
-
-# Ensure the streaming process is terminated when the script exits
-atexit.register(cleanup)
-
-# Start the monitoring thread
-monitor_thread = threading.Thread(target=monitor_streaming_process, daemon=True)
-monitor_thread.start()
+# Start the initial streaming process on port 2369
+streaming_process = start_streaming(2369)
 
 # Initialize the server
 server = get_server(client_type="vue2")  # client_type="vue2"
 state, ctrl = server.state, server.controller
 
 # Load LiDAR data
-stream = lvsmp.OpenSensorStream("VLP-16", "Velodyne")
+stream = lvsmp.OpenSensorStream("VLP-16", "Velodyne", ListeningPort=2369)
 stream.Start()
 
 representation = simple.Show(stream)
@@ -101,6 +64,7 @@ def matrix_vector_multiply(matrix, vector):
         matrix[2][0] * vector[0] + matrix[2][1] * vector[1] + matrix[2][2] * vector[2]
     ]
 
+# REQUIRES SLAM RUNNING TO RUN
 def set_camera_to_lidar():
     """
     Set the camera position and focal point to match the LiDAR's position and orientation
@@ -309,5 +273,5 @@ with DivLayout(server) as layout:
     ctrl.view_reset_camera = html_view.reset_camera
 
 if __name__ == "__main__":
-    server.start()
+    server.start(port=9000)
     print('after start')
