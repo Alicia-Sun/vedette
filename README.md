@@ -2,7 +2,7 @@
 This is a web application you can run with our lightweight LiDAR drones. The application
 is meant to help visualize LiDAR information being streamed from the drone to better
 navigate indoor ambiguous environments.
-![application](https://i.ibb.co/MyWjd3mC/Screenshot-2025-02-16-213926.png)
+![application]([https://i.ibb.co/MyWjd3mC/Screenshot-2025-02-16-213926.png](https://i.ibb.co/XrKz45dy/Screenshot-2025-03-19-182945.png))
 
 # Setup Instructions
 
