@@ -55,3 +55,7 @@ TO RUN: (might need to open browser in windowed mode for some reason)
 - run backend lidar_pov on another terminal: vedette> lvpython lidar_pov.py --venv .lvenv2
 - run frontend on a separate terminal: vedette\frontend\web-app> npm start
 - if streaming live, disconnect the pcap streamer within backends first
+
+NEW WAY TO RUN
+- run backend in a terminal: vedette> python lidar_start.py
+- run frontend on a separate terminal: vedette\frontend\web-app> npm start
