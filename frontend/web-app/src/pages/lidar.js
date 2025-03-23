@@ -60,59 +60,132 @@ const Lidar = () => {
   const [viewerState, setViewerState] = useState({
     color_template: "cyan_pink",
     point_size: 3,
+    slam_status: false,
   });
-  const trameCommunicator = useRef(null);
+  // const trameCommunicator = useRef(null);
+  const trameCommunicatorMain = useRef(null); // For localhost:8080
+  const trameCommunicatorPOV = useRef(null); // For localhost:9000
   const synchronizeTrameState = useRef(null);
 
+  // const startSLAM = () => {
+  //   if (!trameCommunicator.current) return;
+  //   trameCommunicator.current.state.update({ slam_status: !viewerState.slam_status }); // Set state.slam to "start"
+  //   console.log("Toggling Slam status")
+  // };  
   const startSLAM = () => {
-    if (!trameCommunicator.current) return;
-    trameCommunicator.current.state.update({ play: true }); // Set state.slam to "start"
-    console.log("pressing start")
-  };  
+    if (trameCommunicatorMain.current) {
+      trameCommunicatorMain.current.state.update({ slam_status: !viewerState.slam_status });
+    }
+    if (trameCommunicatorPOV.current) {
+      trameCommunicatorPOV.current.state.update({ slam_status: !viewerState.slam_status });
+    }
+    console.log("Toggling Slam status");
+  };
 
+  // useEffect(() => {
+  //   synchronizeTrameState.current = debounce((viewerState) => {
+  //     if (!trameCommunicator.current) {
+  //       return;
+  //     }
+
+  //     trameCommunicator.current.state.get().then((trame_state) => {
+  //       if (!stateIsSync(viewerState, trame_state)) {
+  //         trameCommunicator.current.state.update(viewerState);
+  //       }
+  //     });
+  //   }, 25);
+  // }, []);
   useEffect(() => {
     synchronizeTrameState.current = debounce((viewerState) => {
-      if (!trameCommunicator.current) {
-        return;
+      if (trameCommunicatorMain.current) {
+        trameCommunicatorMain.current.state.get().then((trame_state) => {
+          if (!stateIsSync(viewerState, trame_state)) {
+            trameCommunicatorMain.current.state.update(viewerState);
+          }
+        });
       }
-
-      trameCommunicator.current.state.get().then((trame_state) => {
-        if (!stateIsSync(viewerState, trame_state)) {
-          trameCommunicator.current.state.update(viewerState);
-        }
-      });
+      if (trameCommunicatorPOV.current) {
+        trameCommunicatorPOV.current.state.get().then((trame_state) => {
+          if (!stateIsSync(viewerState, trame_state)) {
+            trameCommunicatorPOV.current.state.update(viewerState);
+          }
+        });
+      }
     }, 25);
   }, []);
+  
 
   useEffect(() => {
     synchronizeTrameState.current(viewerState);
   }, [viewerState]);
   
 
-  const onViewerReady = (comm) => {
-    trameCommunicator.current = comm;
+  // const onViewerReady = (comm) => {
+  //   trameCommunicator.current = comm;
 
-    trameCommunicator.current.state.onReady(() => {
-      trameCommunicator.current.state.watch(
-        ['point_size'],
-        (point_size) => {
-          console.log({ point_size });
-        }
-      );
-      trameCommunicator.current.state.watch(
-        ['color_template'],
-        (color_template) => {
-          console.log({ color_template });
-        }
-      );
+  //   trameCommunicator.current.state.onReady(() => {
+  //     trameCommunicator.current.state.watch(
+  //       ['point_size'],
+  //       (point_size) => {
+  //         console.log({ point_size });
+  //       }
+  //     );
+  //     trameCommunicator.current.state.watch(
+  //       ['color_template'],
+  //       (color_template) => {
+  //         console.log({ color_template });
+  //       }
+  //     );
+  //     trameCommunicator.current.state.watch(
+  //       ['slam_status'],
+  //       (slam_status) => {
+  //         console.log({ slam_status });
+  //       }
+  //     );
 
-      trameCommunicator.current.state.watch(
-        ['color_template', 'point_size'],
-        (color_template, point_size) => {
+  //     trameCommunicator.current.state.watch(
+  //       ['color_template', 'point_size', 'slam_status'],
+  //       (color_template, point_size, slam_status) => {
+  //         setViewerState((prevState) => ({
+  //           ...prevState,
+  //           color_template: color_template ?? "cyan_pink",
+  //           point_size: point_size ?? 3,
+  //           slam_status: slam_status ?? false,
+  //         }));
+  //       }
+  //     );
+  //   });
+  // };
+  const onViewerReadyMain = (comm) => {
+    trameCommunicatorMain.current = comm;
+    setupCommunicator(comm);
+  };
+  
+  const onViewerReadyPOV = (comm) => {
+    trameCommunicatorPOV.current = comm;
+    setupCommunicator(comm);
+  };
+  
+  const setupCommunicator = (comm) => {
+    comm.state.onReady(() => {
+      comm.state.watch(['point_size'], (point_size) => {
+        console.log({ point_size });
+      });
+      comm.state.watch(['color_template'], (color_template) => {
+        console.log({ color_template });
+      });
+      comm.state.watch(['slam_status'], (slam_status) => {
+        console.log({ slam_status });
+      });
+  
+      comm.state.watch(
+        ['color_template', 'point_size', 'slam_status'],
+        (color_template, point_size, slam_status) => {
           setViewerState((prevState) => ({
             ...prevState,
             color_template: color_template ?? "cyan_pink",
             point_size: point_size ?? 3,
+            slam_status: slam_status ?? false,
           }));
         }
       );
@@ -126,21 +199,21 @@ const Lidar = () => {
           <TrameIframeApp
             iframeId={"trame_app"}
             url={"http://localhost:8080/index.html"}
-            onCommunicatorReady={onViewerReady}
+            onCommunicatorReady={onViewerReadyMain}
           />
         </div>
         <div className="side-iframes">
-          <iframe 
+          {/* <iframe 
             title="Side Iframe 1"
             className="side-iframe1"
             src="http://localhost:9000/index.html"
             frameBorder="0"
-          ></iframe>
-          {/* <TrameIframeApp
+          ></iframe> */}
+          <TrameIframeApp
             iframeId={"lidar_pov"}
             url={"http://localhost:9000/index.html"}
-            onCommunicatorReady={onViewerReady}
-          /> */}
+            onCommunicatorReady={onViewerReadyPOV}
+          />
           <iframe 
             title="Side Iframe 2"
             className="side-iframe2"
@@ -154,7 +227,8 @@ const Lidar = () => {
         {/* Section 1 */}
         <div className="section-1">
           <div className="button-group1">
-            <button className="action-button connected" onClick={startSLAM}>▶ Launch SLAM</button>
+            <button className="action-button connected" 
+            onClick= {startSLAM}>▶ Launch SLAM</button>
             <button className="action-button connected">Reset SLAM</button>
           </div>
           <label className="measurement-label"> &nbsp;Measurement:</label>

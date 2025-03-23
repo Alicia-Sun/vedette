@@ -177,10 +177,25 @@ def create_color_template(template_name):
     return lut
 
 def apply_color_template(color_template, **kwargs):
+    print('hellooo')
+    """
+    Apply a color scheme to the point cloud visualization.
+
+    Args:
+        template_name (str): Name of the color template.
+    """
     print(f'Applying template: {color_template}')
+    
     lut = create_color_template(color_template)
     simple.ColorBy(representation, ('POINTS', 'intensity'))
     representation.LookupTable = lut
+    if state.slam:
+        for i in range(0, 7):
+            if i != 1:
+                slam_display = simple.Show(simple.OutputPort(state.slam, i), view)
+                simple.ColorBy(slam_display, ('POINTS', 'intensity'))
+                slam_display.LookupTable = lut
+
     view.Update()
     simple.Render()
     ctrl.view_update()
@@ -213,10 +228,12 @@ def on_slam_start():
     if state.slam:
         return
     state.slam = simple.SLAMonline(PointCloud=stream)
+    print("this is slam: ", state.slam)
     simple.Hide(stream, view)
     for i in range(0, 7):
-        slamDisplay = simple.Show(simple.OutputPort(state.slam, i), view)
-        slamDisplay.Representation = 'Surface'
+        if i != 1:
+            slamDisplay = simple.Show(simple.OutputPort(state.slam, i), view)
+            slamDisplay.Representation = 'Surface'
 
     view.Update()
     simple.SetActiveSource(state.slam)

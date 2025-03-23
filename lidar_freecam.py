@@ -32,12 +32,12 @@ view = simple.GetRenderView()
 
 sphere = simple.Sphere(
          Radius=0.25,
-         ThetaResolution=8,
-         PhiResolution=8,
+         ThetaResolution=6,
+         PhiResolution=6,
      )
 glyph = simple.Glyph(Input=stream, GlyphType=sphere)
 glyph.GlyphMode = 'Every Nth Point' # 'All Points'
-glyph.Stride = 3
+glyph.Stride = 6
 glyph.GlyphType.Radius = 0.1
 representation = simple.Show(glyph, view)
 representation.Diffuse = 0.9 
@@ -102,6 +102,11 @@ def apply_color_template(color_template, **kwargs):
     lut = create_color_template(color_template)
     simple.ColorBy(representation, ('POINTS', 'intensity'))
     representation.LookupTable = lut
+    if state.slam:
+        for i in range(0, 7):
+            slam_display = simple.Show(simple.OutputPort(state.slam, i), view)
+            simple.ColorBy(slam_display, ('POINTS', 'intensity'))
+            slam_display.LookupTable = lut
 
     view.Update()
     simple.Render()
@@ -124,22 +129,42 @@ async def update_play(**kwargs):
             ctrl.view_update_geometry()
         await asyncio.sleep(0.1)
 
-def on_slam_start():
-    print("starting slam")
-    if state.slam:
-        return
-    state.slam = simple.SLAMonline(PointCloud=stream)
-    simple.Hide(stream, view)
-    for i in range(0, 7):
-        slamDisplay = simple.Show(simple.OutputPort(state.slam, i), view)
-        slamDisplay.Representation = 'Surface'
+@state.change("slam_status")
+def on_slam_start(slam_status, **kwargs):
+    if slam_status:
+        print("Starting SLAM")
+        if state.slam:
+            return
+        state.slam = simple.SLAMonline(PointCloud=stream)
+        simple.Hide(stream, view)
+        lut = create_color_template(state.color_template)
+        for i in range(0, 7):
+            slamDisplay = simple.Show(simple.OutputPort(state.slam, i), view)
+            # slamDisplay.Representation = 'intensity'
+            simple.ColorBy(slamDisplay, ('POINTS', 'intensity'))
+            slamDisplay.LookupTable = lut
+            
+        view.Update()
+        simple.SetActiveSource(state.slam)
+    else:
+        print("SLAM is already running or not started")
+    # print("starting slam")
+    # if state.slam:
+    #     return
+    # state.slam = simple.SLAMonline(PointCloud=stream)
+    # simple.Hide(stream, view)
+    # for i in range(0, 7):
+    #     slamDisplay = simple.Show(simple.OutputPort(state.slam, i), view)
+    #     slamDisplay.Representation = 'Surface'
 
-    view.Update()
-    simple.SetActiveSource(state.slam)
+    # view.Update()
+    # simple.SetActiveSource(state.slam)
 
 def on_slam_reset():
     state.slam.Resetstate()
 
+state.slam_status = False
+# state.change("slam_status")(on_slam_start)
 
 # -----------------------------------------------------------------------------
 # Point Sizes
